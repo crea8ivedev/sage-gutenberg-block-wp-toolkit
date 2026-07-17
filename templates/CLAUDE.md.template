@@ -1,0 +1,104 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Front-end code rules (mandatory)
+
+**Whenever you write or edit HTML, CSS, or JavaScript, you MUST follow the `sage-wp-toolkit:frontend-code-rules` skill exactly.** No exceptions. (Install the `sage-wp-toolkit` plugin — see team setup docs — and this triggers automatically; this line is a backup reminder.)
+
+## Figma Design File
+
+**Target design:** <FIGMA_FILE_URL>
+
+Always fetch design context from this file via Figma MCP before implementing any UI.
+
+## What this is
+
+Custom WordPress theme for **<CLIENT_NAME>**, built on [Sage 11](https://roots.io/sage/). Stack: Laravel Blade templates + Tailwind CSS v4 + Vite + Acorn (Laravel container for WordPress).
+
+PHP ≥ 8.2, Node ≥ 20, WordPress ≥ 6.6. Theme folder: `<THEME_FOLDER>`. Text domain: `<TEXT_DOMAIN>`.
+
+## Commands
+
+**Frontend (run from theme root):**
+```bash
+npm run dev      # Vite dev server with HMR
+npm run build    # Production build → public/build/
+```
+
+**PHP code style (Laravel Pint, via Composer):**
+```bash
+./vendor/bin/pint          # Fix all PHP files
+./vendor/bin/pint --test   # Check only (no writes)
+```
+
+**Translations:**
+```bash
+npm run translate          # Generate .pot and update .po files
+npm run translate:compile  # Compile .mo and .js translation files
+```
+
+## Architecture
+
+### Request → View flow
+
+1. WordPress resolves the template (e.g. `single.php`) → Sage maps it to a Blade view in `resources/views/`
+2. Acorn boots the Laravel container; View Composers in `app/View/Composers/` inject data into views
+3. `App` composer (`app/View/Composers/App.php`) runs on **every** view (`'*'`) and injects `$siteName`
+4. The main layout `resources/views/layouts/app.blade.php` wraps all pages; sections `header` and `footer` come from `resources/views/sections/`
+
+### Key files
+
+<!-- Fill in as the project grows — mirror the reference project's table structure. -->
+
+| Path | Purpose |
+|------|---------|
+| `functions.php` | Acorn boot, provider registration |
+| `app/setup.php` | Theme supports, nav menus, sidebars, block editor asset injection |
+| `app/filters.php` | WordPress filter hooks |
+| `app/Providers/ThemeServiceProvider.php` | Extends `SageServiceProvider`; wires `render_block` filter for custom blocks in `register()` |
+| `app/View/Composers/App.php` | Global Blade composer |
+| `resources/views/layouts/app.blade.php` | Root HTML layout |
+| `resources/views/sections/` | `header`, `footer`, `sidebar` — included by layout |
+| `resources/views/partials/` | Reusable content fragments |
+| `resources/views/components/` | Blade components |
+| `resources/css/app.css` | Main stylesheet entry (Tailwind + layered CSS imports) |
+| `resources/js/app.js` | Main JS entry |
+| `resources/js/editor.js` | Gutenberg editor entry — registers all custom blocks |
+| `public/build/` | Vite output (do not edit manually) |
+| `theme.json` | Block/global styles |
+
+### Custom Gutenberg blocks
+
+Block namespace is `<BLOCK_NAMESPACE>/` (e.g. `radicle/`, `acme/` — pick one per project and stay consistent).
+
+Each block requires four files:
+
+| File | Purpose |
+|------|---------|
+| `app/Blocks/MyBlock.php` | PHP render class; maps `$block['attrs']` to a Blade view via `view('blocks.my-block')->render()` |
+| `resources/views/blocks/my-block.blade.php` | Blade template for server-side rendering |
+| `resources/js/editor/my-block.block.jsx` | Gutenberg editor component (exports `name`, `title`, `attributes`, `edit`, `save`) |
+| `resources/css/app.css` + `editor.css` | Block styles must be added to **both** — `app.css` for frontend, `editor.css` for Gutenberg preview |
+
+To scaffold a new block, use `/sage-wp-toolkit:make-acorn-block` or `/sage-wp-toolkit:make-acorn-block-from-figma`.
+To add a branding-settings section, use `/sage-wp-toolkit:add-branding-section`.
+
+### CSS architecture
+
+`app.css` uses `@import "tailwindcss"` and imports layer files in this order:
+`base.css` → `component.css` → `layout.css` → `utilities.css` → `custom.css`
+
+`editor.css` mirrors all block CSS — required for Gutenberg editor preview parity.
+
+**Always reuse existing tokens — never hardcode hex or pixel values.** Full rules enforced by the `sage-wp-toolkit:frontend-code-rules` skill.
+
+### BrandingServiceProvider pattern (if used)
+
+Site-wide config lives in `wp_options` keys prefixed `<OPTION_PREFIX>_*`. See `/sage-wp-toolkit:add-branding-section` for the pattern.
+
+### Vite
+
+`vite.config.js` `base` should match the Bedrock/WordPress public path for this environment. Aliases: `@scripts` → `resources/js`, `@styles` → `resources/css`, `@fonts` → `resources/fonts`, `@images` → `resources/images`.
+
+`@wordpress/blocks` and `@wordpress/dom-ready` are provided by WordPress at runtime — do not bundle them.

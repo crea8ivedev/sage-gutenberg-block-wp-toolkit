@@ -1,0 +1,10 @@
+{
+  "name": "sage-wp-toolkit",
+  "displayName": "Sage WP Toolkit",
+  "description": "Claude Code skills and commands for Sage 11 (Blade + Tailwind v4 + Vite + Acorn) WordPress theme development: Gutenberg block scaffolding from Figma or HTML, branding-settings scaffolding, front-end code rules, and WP performance diagnostics.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Encircle Technologies"
+  },
+  "keywords": ["wordpress", "sage", "blade", "tailwind", "gutenberg", "acorn", "figma"]
+}
