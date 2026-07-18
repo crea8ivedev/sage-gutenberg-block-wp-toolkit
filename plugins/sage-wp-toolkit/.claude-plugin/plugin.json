@@ -6,5 +6,11 @@
   "author": {
     "name": "Encircle Technologies"
   },
+  "contributors": [
+    {
+      "name": "Nimesh Gorfad",
+      "url": "https://github.com/nimeshgorfad"
+    }
+  ],
   "keywords": ["wordpress", "sage", "blade", "tailwind", "gutenberg", "acorn", "figma"]
 }

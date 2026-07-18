@@ -41,6 +41,10 @@ When the toolkit changes (new rule, new command), bump the version in
 Add a new folder under `plugins/`, give it its own `.claude-plugin/plugin.json`, then add an entry to
 `.claude-plugin/marketplace.json`'s `plugins` array pointing `source` at `./plugins/<name>`.
 
+## Contributors
+
+- [Nimesh Gorfad](https://github.com/nimeshgorfad)
+
 ## Not included here
 
 `.claude/settings.local.json` (permission allowlist) is intentionally excluded — it's local/session
