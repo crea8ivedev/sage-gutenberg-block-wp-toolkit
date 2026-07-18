@@ -2,6 +2,17 @@
 
 Internal marketplace for shared Claude Code config across Encircle Technologies WordPress projects.
 
+## What you get
+
+- **Front-end rules** (Tailwind tokens, markup structure, a11y, perf) — kicks in automatically, nothing to type
+- **Sage/Blade/ACF patterns** + Gutenberg block dev know-how
+- **WP performance diagnostics** (autoload, cron, DB, object cache)
+- **Figma MCP server** bundled — auto-wired on install, each user logs in with their own Figma account
+- **Slash commands** to scaffold blocks fast:
+  - `/sage-wp-toolkit:make-acorn-block` — dynamic Gutenberg block from raw HTML
+  - `/sage-wp-toolkit:figma-to-block` — pixel-perfect block from a Figma URL (needs Figma MCP connected)
+  - `/sage-wp-toolkit:add-branding-section` — new settings section on the branding admin page
+
 ## Structure
 
 ```
