@@ -1,3 +1,7 @@
+---
+description: Add a settings section to the Appearance → Branding admin page (all 5 layers — provider, getter, AJAX save, Alpine UI, defaults)
+---
+
 # Add Branding Section
 
 Add a new settings section to the branding admin page following this project's exact architectural pattern.
@@ -20,10 +24,10 @@ File: `app/Providers/BrandingServiceProvider.php`
 ### 1a. Add option name constant (at top of class constants block)
 
 ```php
-public const MY_SECTION_OPTION_NAME = 'radicle_my_section_settings';
+public const MY_SECTION_OPTION_NAME = '{prefix}_my_section_settings';
 ```
 
-Naming rule: `radicle_{snake_section_name}_settings`
+Naming rule: `{prefix}_{snake_section_name}_settings` — `{prefix}` = the project's option prefix (from CLAUDE.md or existing provider constants), `'radicle'` in older projects. `{text_domain}` in the Blade examples below = the theme's text domain (usually `sage`) — read it from `style.css` or existing `__()` calls, never leave the placeholder literal.
 
 ### 1b. Add defaults constant
 
@@ -212,24 +216,24 @@ Add the HTML section block in the blade file **before** the closing `</div>` of 
 ```html
 {{-- My Section --}}
 <div class="branding-section branding-my-section-section">
-    <h2>{{ __('My Section', 'radicle') }}</h2>
-    <p class="section-description">{{ __('Manage my section settings.', 'radicle') }}</p>
+    <h2>{{ __('My Section', '{text_domain}') }}</h2>
+    <p class="section-description">{{ __('Manage my section settings.', '{text_domain}') }}</p>
 
     <table class="form-table">
         {{-- Text field --}}
         <tr>
-            <th scope="row">{{ __('Field One', 'radicle') }}</th>
+            <th scope="row">{{ __('Field One', '{text_domain}') }}</th>
             <td>
                 <input type="text"
                        x-model="mySectionSettings.field_one"
                        class="regular-text"
-                       placeholder="{{ __('Enter value...', 'radicle') }}">
+                       placeholder="{{ __('Enter value...', '{text_domain}') }}">
             </td>
         </tr>
 
         {{-- Textarea field --}}
         <tr>
-            <th scope="row">{{ __('Field Two', 'radicle') }}</th>
+            <th scope="row">{{ __('Field Two', '{text_domain}') }}</th>
             <td>
                 <textarea x-model="mySectionSettings.field_two"
                           class="regular-text" rows="4"></textarea>
@@ -238,13 +242,13 @@ Add the HTML section block in the blade file **before** the closing `</div>` of 
 
         {{-- Boolean / checkbox field --}}
         <tr>
-            <th scope="row">{{ __('Enable Feature', 'radicle') }}</th>
+            <th scope="row">{{ __('Enable Feature', '{text_domain}') }}</th>
             <td>
                 <label class="toggle-option">
                     <input type="checkbox" x-model="mySectionSettings.enable_feature">
                     <span class="toggle-label">
-                        <strong>{{ __('Enable Feature', 'radicle') }}</strong>
-                        <span class="toggle-description">{{ __('Description here.', 'radicle') }}</span>
+                        <strong>{{ __('Enable Feature', '{text_domain}') }}</strong>
+                        <span class="toggle-description">{{ __('Description here.', '{text_domain}') }}</span>
                     </span>
                 </label>
             </td>
@@ -252,22 +256,22 @@ Add the HTML section block in the blade file **before** the closing `</div>` of 
 
         {{-- Radio / select field --}}
         <tr>
-            <th scope="row">{{ __('Style', 'radicle') }}</th>
+            <th scope="row">{{ __('Style', '{text_domain}') }}</th>
             <td>
                 <label>
                     <input type="radio" name="my-section-style" value="style-1" x-model="mySectionSettings.style">
-                    {{ __('Style 1', 'radicle') }}
+                    {{ __('Style 1', '{text_domain}') }}
                 </label>
                 <label>
                     <input type="radio" name="my-section-style" value="style-2" x-model="mySectionSettings.style">
-                    {{ __('Style 2', 'radicle') }}
+                    {{ __('Style 2', '{text_domain}') }}
                 </label>
             </td>
         </tr>
 
         {{-- Image upload field --}}
         <tr>
-            <th scope="row">{{ __('Image', 'radicle') }}</th>
+            <th scope="row">{{ __('Image', '{text_domain}') }}</th>
             <td>
                 <div class="logo-preview" :class="{ 'has-logo': mySectionSettings.image_id }">
                     <template x-if="mySectionSettings.image_url">
@@ -276,18 +280,18 @@ Add the HTML section block in the blade file **before** the closing `</div>` of 
                     <template x-if="!mySectionSettings.image_url">
                         <div class="logo-placeholder">
                             <span class="dashicons dashicons-format-image"></span>
-                            <span>{{ __('No image set', 'radicle') }}</span>
+                            <span>{{ __('No image set', '{text_domain}') }}</span>
                         </div>
                     </template>
                 </div>
                 <div style="margin-top:8px; display:flex; gap:8px;">
                     <button type="button" class="button button-secondary" @click="openMySectionMedia()">
-                        <span x-show="!mySectionSettings.image_id">{{ __('Upload Image', 'radicle') }}</span>
-                        <span x-show="mySectionSettings.image_id">{{ __('Change Image', 'radicle') }}</span>
+                        <span x-show="!mySectionSettings.image_id">{{ __('Upload Image', '{text_domain}') }}</span>
+                        <span x-show="mySectionSettings.image_id">{{ __('Change Image', '{text_domain}') }}</span>
                     </button>
                     <button type="button" class="button" x-show="mySectionSettings.image_id"
                             @click="mySectionSettings.image_id = 0; mySectionSettings.image_url = ''">
-                        {{ __('Remove', 'radicle') }}
+                        {{ __('Remove', '{text_domain}') }}
                     </button>
                 </div>
             </td>
@@ -297,8 +301,8 @@ Add the HTML section block in the blade file **before** the closing `</div>` of 
     <div class="branding-actions">
         <button type="button" class="button button-primary"
                 @click="saveMySectionSettings()" :disabled="savingMySection">
-            <span x-show="!savingMySection">{{ __('Save My Section Settings', 'radicle') }}</span>
-            <span x-show="savingMySection">{{ __('Saving...', 'radicle') }}</span>
+            <span x-show="!savingMySection">{{ __('Save My Section Settings', '{text_domain}') }}</span>
+            <span x-show="savingMySection">{{ __('Saving...', '{text_domain}') }}</span>
         </button>
         <span x-show="mySectionMessage" x-text="mySectionMessage"
               :class="mySectionMessageType === 'success' ? 'notice-success' : 'notice-error'"
@@ -324,7 +328,7 @@ HTML for the repeating list:
 <template x-for="(item, index) in mySectionSettings.items" :key="index">
     <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
         <input type="text" x-model="mySectionSettings.items[index].title"
-               class="regular-text" placeholder="{{ __('Title...', 'radicle') }}">
+               class="regular-text" placeholder="{{ __('Title...', '{text_domain}') }}">
         <button type="button" class="button button-secondary"
                 @click="removeMySectionItem(index)">
             <span class="dashicons dashicons-trash" style="margin-top:4px;"></span>
@@ -332,7 +336,7 @@ HTML for the repeating list:
     </div>
 </template>
 <button type="button" class="button" @click="addMySectionItem()">
-    {{ __('Add Item', 'radicle') }}
+    {{ __('Add Item', '{text_domain}') }}
 </button>
 ```
 
@@ -379,7 +383,7 @@ App\Providers\MySectionServiceProvider::class,
 
 After implementing, verify:
 
-- [ ] Constant name: `radicle_{snake}_settings`
+- [ ] Constant name: `{prefix}_{snake}_settings`
 - [ ] AJAX action: `save_{snake}_settings` — matches in `add_action`, `formData.append('action', ...)`, and PHP handler
 - [ ] Nonce string: exact same value in `check_ajax_referer()`, `wp_create_nonce()` in blade
 - [ ] Getter passed to `compact()` in `renderAdminPage()`
@@ -395,7 +399,7 @@ After implementing, verify:
 User: "Add a Contact Bar section with a phone number field, an email field, and a toggle to show/hide it."
 
 You would:
-1. Constant: `CONTACT_BAR_OPTION_NAME = 'radicle_contact_bar_settings'`
+1. Constant: `CONTACT_BAR_OPTION_NAME = '{prefix}_contact_bar_settings'`
 2. Defaults: `['phone' => '', 'email' => '', 'enabled' => true]`
 3. Getter: `getContactBarSettings()` using `get_option` + `array_merge`
 4. Handler: `handleContactBarSave()` — sanitize phone as `sanitize_text_field`, email as `sanitize_email`, enabled as `(bool)`

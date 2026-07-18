@@ -12,7 +12,7 @@ Claude Code plugin for Sage 11 (Blade + Tailwind v4 + Vite + Acorn) WordPress th
 
 **Commands** (invoke explicitly):
 - `/sage-wp-toolkit:make-acorn-block` — scaffold a dynamic Gutenberg block from raw HTML + notes.
-- `/sage-wp-toolkit:make-acorn-block-from-figma` / `/sage-wp-toolkit:figma-to-block` — scaffold a block from a Figma URL via Figma MCP.
+- `/sage-wp-toolkit:figma-to-block` — scaffold a block from a Figma URL via Figma MCP.
 - `/sage-wp-toolkit:add-branding-section` — add a new settings section to a branding admin page, following the standard 5-layer pattern.
 
 ## Install (per project)

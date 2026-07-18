@@ -8,21 +8,21 @@ allowed-tools: Read, Write, Bash, Glob, Grep
 
 ## Overview
 
-Sage is a WordPress theme framework by Roots that provides modern development practices including Blade templates, dependency management with Composer, and build tools with Vite/Bud.
+Sage is a WordPress theme framework by Roots that provides modern development practices including Blade templates, dependency management with Composer, and build tools with Vite (Sage 11) or Bud (legacy Sage 10).
 
 ## When to Use
 
 - Creating new Sage themes from scratch or from composer templates
 - Setting up Blade templates, layouts, and reusable components
-- Configuring build tools (Bud/Vite) for asset compilation
+- Configuring the Vite build (or Bud on legacy Sage 10) for asset compilation
 - Working with WordPress template hierarchy in Blade format
 - Integrating Advanced Custom Fields (ACF) with Blade templates
 - Debugging theme rendering, asset loading, or build issues
 
 ## Instructions
 
-1. **Set up the environment**: Install PHP 8.0+, Node.js 18+, Composer, and create a new Sage theme with `composer create-project roots/sage`
-2. **Configure build tools**: Run `npm install && composer install`, then configure `vite.config.js` for asset entries and Tailwind
+1. **Set up the environment**: Install PHP 8.2+, Node.js 20+, Composer, and create a new Sage theme with `composer create-project roots/sage`
+2. **Configure build tools**: Run `npm install && composer install`, then configure `vite.config.js` for asset entries and Tailwind v4
 3. **Create Blade templates**: Place templates in `resources/views/`, using layouts in `layouts/`, components in `components/`
 4. **Wire up WordPress templates**: Map WordPress template hierarchy to Blade files (e.g., `page.blade.php` for page templates)
 5. **Integrate ACF fields**: Use `get_field()` for basic fields, `have_rows()` loops for repeaters and flexible content
@@ -74,7 +74,7 @@ npm run dev
 
 ### Creating a New Sage Theme
 
-**Prerequisites**: PHP 8.0+, Node.js 18+, Composer
+**Prerequisites**: PHP 8.2+, Node.js 20+, Composer
 
 ```bash
 # Create new Sage theme
@@ -103,11 +103,14 @@ resources/
 │   ├── layouts/     # Base layouts (app.blade.php)
 │   ├── components/  # Reusable components
 │   └── partials/    # Template partials
-├── styles/          # CSS/SASS files
-│   └── main.scss    # Main stylesheet
-└── scripts/         # JavaScript files
-    └── main.js      # Main JavaScript
+├── css/             # Stylesheets (Sage 11)
+│   ├── app.css      # Main stylesheet entry
+│   └── editor.css   # Gutenberg editor styles
+└── js/              # JavaScript (Sage 11)
+    ├── app.js       # Main JS entry
+    └── editor.js    # Gutenberg editor entry
 ```
+(Legacy Sage 10 used `resources/styles/` + `resources/scripts/` instead.)
 
 ## Blade Templates
 
@@ -220,49 +223,63 @@ resources/
 @endif
 ```
 
-## Build Configuration (Bud)
+## Build Configuration (Vite — Sage 11 default)
 
-### Tailwind CSS Setup
+Sage 11 uses Vite (`vite.config.js`), not Bud. Bud applies only to older Sage 10 projects — see [bud.md](references/bud.md) if you're maintaining one.
 
-**Install Tailwind**:
+**Install Tailwind v4**:
 
 ```bash
-npm install -D tailwindcss
-npx tailwindcss init -p
+npm install -D tailwindcss @tailwindcss/vite
 ```
 
-**Configure** (`bud.config.js`):
+**Configure** (`vite.config.js`):
 
 ```js
-export default async (app) => {
-  app
-    .entry({
-      app: ['@/scripts/main.js', '@styles/main.css'],
-      editor: ['@scripts/editor.js', '@styles/editor.css'],
-    })
-    .assets('images', 'fonts')
-    .tailwind()
-    .runtime()
-}
+import { defineConfig } from 'vite'
+import laravel from 'laravel-vite-plugin'
+import { wordpressPlugin, wordpressThemeJson } from '@roots/vite-plugin'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
+  base: '/app/themes/sage/public/build/',
+  plugins: [
+    tailwindcss(),
+    laravel({
+      input: [
+        'resources/css/app.css',
+        'resources/js/app.js',
+        'resources/css/editor.css',
+        'resources/js/editor.js',
+      ],
+      refresh: true,
+    }),
+    wordpressPlugin(),
+    wordpressThemeJson({ disableTailwindColors: false }),
+  ],
+  resolve: {
+    alias: {
+      '@scripts': '/resources/js',
+      '@styles': '/resources/css',
+      '@fonts': '/resources/fonts',
+      '@images': '/resources/images',
+    },
+  },
+})
 ```
 
-**Tailwind CSS** (`resources/styles/main.css`):
+**Tailwind CSS v4** (`resources/css/app.css`) — no `tailwind.config.js`; theme tokens live in CSS:
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer components {
-  .btn {
-    @apply rounded px-4 py-2 font-semibold transition;
-  }
-
-  .btn-primary {
-    @apply bg-blue-600 text-white hover:bg-blue-700;
-  }
+@theme {
+  --color-brand: #0f172a;
+  --font-inter: "Inter", sans-serif;
 }
 ```
+
+Keep `@wordpress/*` packages out of the bundle — WordPress provides them at runtime (enqueue via `app/setup.php`).
 
 ## Advanced Patterns
 
@@ -371,10 +388,10 @@ cat public/manifest.json | head -20
 
 ### Asset Management
 
-- **Use Bud for asset compilation**: Let Bud handle versioning and optimization instead of manual asset management
-- **Minimize HTTP requests**: Combine CSS/JS files where appropriate using Bud's entry points
+- **Use Vite for asset compilation**: Let Vite handle versioning and optimization instead of manual asset management
+- **Minimize HTTP requests**: Combine CSS/JS files where appropriate using Vite's entry points
 - **Optimize images**: Use WordPress image sizes and lazy loading; consider WebP conversion
-- **Cache busting**: Bud automatically handles cache busting via manifest.json
+- **Cache busting**: Vite automatically handles cache busting via the build manifest
 
 ### Code Organization
 
@@ -394,14 +411,14 @@ cat public/manifest.json | head -20
 
 ### Version Requirements
 
-- **PHP 8.0+ required**: Sage 10 requires PHP 8.0 or higher; earlier versions are not supported
-- **Node.js 18+ required**: Build tools require modern Node.js; older versions may cause compilation errors
+- **PHP 8.2+ required**: Sage 11 requires PHP 8.2 or higher (legacy Sage 10: PHP 8.0+)
+- **Node.js 20+ required**: Build tools require modern Node.js; older versions may cause compilation errors
 - **WordPress 6.0+ recommended**: While Sage works with WordPress 5.x, version 6.0+ is recommended for full feature support
 - **Composer required**: Dependency management requires Composer; manual installation is not supported
 
 ### Build Tool Limitations
 
-- **Hot reload limitations**: Bud's hot reload may not work correctly with some WordPress multisite configurations
+- **Hot reload limitations**: Vite HMR may not work correctly with some WordPress multisite configurations
 - **Production builds required for testing**: Some features work differently in development vs production; always test with `npm run build` before deployment
 - **Manifest.json dependency**: Theme relies on `public/manifest.json`; missing this file breaks asset loading
 
@@ -409,7 +426,7 @@ cat public/manifest.json | head -20
 
 - **Template hierarchy confusion**: Sage uses Blade files but follows WordPress template hierarchy; ensure file names match WordPress expectations
 - **Direct file access**: Do not access Blade files directly via URL; they must be rendered through WordPress
-- **Plugin conflicts**: Some caching and security plugins may interfere with Bud's hot reload or asset serving
+- **Plugin conflicts**: Some caching and security plugins may interfere with Vite's dev server or asset serving
 - **Theme updates**: Updating Sage via Composer may overwrite customizations; use child themes for extensive modifications
 
 ### Performance Considerations
@@ -422,5 +439,5 @@ cat public/manifest.json | head -20
 ### Deployment Constraints
 
 - **Build step required**: Production deployments must run `npm run build`; raw source files cannot be served
-- **Environment-specific configuration**: Bud configuration may need adjustment for different deployment environments
+- **Environment-specific configuration**: the Vite `base` path may need adjustment for different deployment environments (Bedrock vs plain WP)
 - **File permissions**: Ensure `public/` directory is writable during builds; incorrect permissions cause build failures

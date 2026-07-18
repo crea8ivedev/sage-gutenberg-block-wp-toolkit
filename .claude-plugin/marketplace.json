@@ -8,8 +8,7 @@
     {
       "name": "sage-wp-toolkit",
       "source": "./plugins/sage-wp-toolkit",
-      "description": "Sage 11 (Blade + Tailwind v4 + Vite + Acorn) WordPress theme development toolkit: block scaffolding, branding settings, front-end code rules, performance diagnostics.",
-      "version": "1.0.0"
+      "description": "Sage 11 (Blade + Tailwind v4 + Vite + Acorn) WordPress theme development toolkit: block scaffolding, branding settings, front-end code rules, performance diagnostics."
     }
   ]
 }

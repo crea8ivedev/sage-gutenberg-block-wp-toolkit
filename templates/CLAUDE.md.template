@@ -81,7 +81,7 @@ Each block requires four files:
 | `resources/js/editor/my-block.block.jsx` | Gutenberg editor component (exports `name`, `title`, `attributes`, `edit`, `save`) |
 | `resources/css/app.css` + `editor.css` | Block styles must be added to **both** — `app.css` for frontend, `editor.css` for Gutenberg preview |
 
-To scaffold a new block, use `/sage-wp-toolkit:make-acorn-block` or `/sage-wp-toolkit:make-acorn-block-from-figma`.
+To scaffold a new block, use `/sage-wp-toolkit:make-acorn-block` (from raw HTML) or `/sage-wp-toolkit:figma-to-block` (from a Figma URL).
 To add a branding-settings section, use `/sage-wp-toolkit:add-branding-section`.
 
 ### CSS architecture

@@ -1,3 +1,7 @@
+---
+description: Scaffold a dynamic Gutenberg block (PHP class + Blade view + JSX editor + CSS) from raw HTML and notes
+---
+
 # Make Acorn Block — AI-Powered Dynamic Block Generator
 
 Generate a fully dynamic Gutenberg block from real HTML + optional notes.
@@ -112,7 +116,7 @@ class {StudlyName}
 {
     public function render(string $blockContent, array $block): string
     {
-        if (($block['blockName'] ?? '') !== 'radicle/{kebab-name}') {
+        if (($block['blockName'] ?? '') !== '{namespace}/{kebab-name}') {
             return $blockContent;
         }
 
@@ -133,7 +137,7 @@ class {StudlyName}
 ```
 
 Rules:
-- `blockName` check uses `radicle/{kebab-name}` — match namespace from existing project blocks
+- `blockName` check uses `{namespace}/{kebab-name}` — match namespace from existing project blocks
 - Pass **every** attribute with its default as fallback
 - Always pass `'extraClass' => $attrs['className'] ?? ''` — WordPress stores "Additional CSS class(es)" here
 - Use `->render()` at the end of the view() call
@@ -166,7 +170,7 @@ import {
 
 // only import what you actually use — remove unused imports
 
-export const name = 'radicle/{kebab-name}';
+export const name = '{namespace}/{kebab-name}';
 export const title = __('{Human Name}', 'sage');
 export const category = 'design';
 export const icon = '{appropriate-dashicon}'; // e.g. 'layout', 'format-image', 'text'
@@ -354,7 +358,7 @@ use App\Blocks\{StudlyName};
 2. Add filter inside `register()` method before its closing `}`:
 ```php
         /**
-         * Render `radicle/{kebab-name}` block with Blade template
+         * Render `{namespace}/{kebab-name}` block with Blade template
          */
         add_filter('render_block', [new {StudlyName}(), 'render'], 10, 2);
 ```
@@ -392,7 +396,7 @@ Next steps:
 
 ## Hard rules
 
-- Namespace always `radicle/` — check existing `.block.jsx` files if unsure
+- `{namespace}` = the project's block namespace — read it from the project's CLAUDE.md or existing `.block.jsx` files; never invent a new one
 - `save: () => null` always — dynamic block, PHP renders frontend
 - PHP class never extends anything — plain class, matches project pattern
 - Defaults pulled from actual HTML content — never invent placeholder text
