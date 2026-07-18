@@ -20,6 +20,21 @@ No arguments needed. Claude collects inputs interactively.
 
 ## Instructions
 
+### Step -1 — Verify Figma MCP connection (hard gate)
+
+**Before anything else**, when the input is a Figma URL, verify the Figma MCP server is connected and authenticated: call the Figma MCP `whoami` tool (or any cheap Figma MCP tool). 
+
+If no Figma MCP tools are available, or the call fails with an auth/connection error:
+
+1. Print exactly this and **STOP — do not continue to any other step, do not ask for inputs, do not write any files**:
+
+   > ❌ **Figma is not connected.** This command needs the Figma MCP server.
+   > Connect it first: run `/mcp` and authenticate the `figma` server (bundled with this plugin), or add the Figma connector, then re-run `/figma-to-block`.
+
+2. Do NOT fall back to guessing the design from the URL, a cached screenshot, or memory. No Figma connection = no output.
+
+(If the user provided raw HTML instead of a Figma URL, this gate does not apply — skip to Step 0.)
+
 ### Step 0 — Collect inputs
 
 The user invoked this command with arguments: `$ARGUMENTS`

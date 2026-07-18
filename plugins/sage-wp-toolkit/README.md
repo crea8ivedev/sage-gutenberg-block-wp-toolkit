@@ -15,6 +15,9 @@ Claude Code plugin for Sage 11 (Blade + Tailwind v4 + Vite + Acorn) WordPress th
 - `/sage-wp-toolkit:figma-to-block` — scaffold a block from a Figma URL via Figma MCP.
 - `/sage-wp-toolkit:add-branding-section` — add a new settings section to a branding admin page, following the standard 5-layer pattern.
 
+**Bundled MCP server:**
+- `figma` — Figma's remote MCP endpoint (`https://mcp.figma.com/mcp`) ships with the plugin. Each user authenticates their own Figma account via `/mcp` on first use — no shared tokens. `figma-to-block` refuses to run (with a "Figma is not connected" error) until this is authenticated.
+
 ## Install (per project)
 
 ```
